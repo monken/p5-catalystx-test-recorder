@@ -1,21 +1,41 @@
 package CatalystX::Test::Recorder::Controller;
 
-use strict;
-use warnings;
+use Moose;
 use utf8;
 use Template::Alloy;
 use Perl::Tidy;
 use Data::Dumper;
 
-use base 'Catalyst::Controller';
+BEGIN { extends 'Catalyst::Controller' };
 
-__PACKAGE__->config( namespace => 'recorder' );
+has skip => ( isa => 'ArrayRef[RegexpRef]', is => 'rw' );
+has namespace => ( isa => 'Str', is => 'rw' );
+has template => ( isa => 'Str', is => 'rw' );
+
+__PACKAGE__->config( namespace => 'recorder', skip => [qr/^static\//, qr/^favicon.ico/] );
 
 our $requests = [];
 our $responses = [];
 our $record   = 0;
 
 my $template = do { local $/ = undef; <DATA> };
+
+after BUILD => sub {
+    my $self = shift;
+    my $app = $self->_app;
+    my $config = $app->config->{'CatalystX::Test::Recorder'} || {};
+    $config = $self->merge_config_hashes($self->config, $config);
+    while(my($k,$v) = each %$config) {
+        $self->$k($v);
+    }
+};
+
+sub action_namespace {
+    my ( $self, $c ) = @_;
+    my $class = ref($self) || $self;
+    my $appclass = ref($c) || $c;
+    return $appclass->config->{'CatalystX::Test::Recorder'}->{namespace} || $class->config->{namespace};
+}
 
 sub start : Local {
     my ( $self, $c ) = @_;
@@ -53,7 +73,7 @@ sub stop : Local {
             $dump =~ s/\n//g;
             return $dump;
         });
-    $tt->process( \$template, { requests => $requests, responses => $responses, app => ref $c }, \$test )
+    $tt->process( $self->template || \$template, { requests => $requests, responses => $responses, app => ref $c }, \$test )
       or die $!;
     $c->res->body($test);
 
@@ -80,6 +100,7 @@ use HTTP::Request::Common qw(GET HEAD PUT DELETE POST);
 use Test::WWW::Mechanize::Catalyst '[% app %]';
 
 my $mech = Test::WWW::Mechanize::Catalyst->new();
+$mech->requests_redirectable([]); # disallow redirects
 
 my ($response, $request, $url);
 

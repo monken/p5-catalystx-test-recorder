@@ -17,6 +17,8 @@ $mech->get_ok('/foo', 'get index');
 
 $mech->get_ok('/foo', 'get index');
 
+$mech->get_ok('/static/foo', 'get static file');
+
 $mech->get_ok('/recorder/stop', 'stop recorder');
 
 $mech->get_ok('/foo', 'get index');

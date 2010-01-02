@@ -15,7 +15,6 @@ my $request = POST '/foo?foo=bar', [ foo => 'get index' ];
 $request->method('POST');
 $mech->request( $request );
 
-
 my $url = URI->new('/foo');
 $url->query_form( { 'foo' => 'bar' } );
 $request = POST $url, [ name => 'bar', password => 'foo' ];
@@ -33,10 +32,8 @@ $response = $mech->request($request);
 
 $mech->get_ok('/recorder/stop', 'stop recorder');
 
-print $mech->content;
-
 subtest 'run generated tests' => sub { 
-    plan 'no_plan';
+    plan tests => 5;
     my $content = $mech->content;
     $content =~ s/done_testing;//s;
     eval $content;

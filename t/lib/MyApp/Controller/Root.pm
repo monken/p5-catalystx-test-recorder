@@ -19,4 +19,6 @@ sub cookie : Local {
     }
 }
 
+sub static : Path('/static/foo') {}
+
 1;
