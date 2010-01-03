@@ -27,6 +27,4 @@ $mech->get_ok('/recorder/stop', 'stop recorder');
 
 $mech->content_like(qr/2 requests/, '2 requests recorded');
 
-print $mech->content;
-
 done_testing;

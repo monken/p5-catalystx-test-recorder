@@ -80,6 +80,8 @@ This module provides a test skeleton from HTTP requests to your application. It 
 as query parameters and handles all HTTP request methods. The generated test checks the response code only. This is
 where the real work begins. See L<Test::WWW::Mechanize::Catalyst> for more testing goodness.
 
+This plugin should only be used in a development environment.
+
 =head1 CONFIGURATION
 
   package MyApp;
