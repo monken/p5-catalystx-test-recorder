@@ -56,13 +56,14 @@ sub stop : Local {
         DUMP    => { html => 0, header => 0 },
         FILTERS => {
             perltidy => sub {
-                my $formated;
+                my $tidy;
                 Perl::Tidy::perltidy(
                     source      => \$_[0],
-                    destination => \$formated,
+                    destination => \$tidy,
+                    argv => [],
                 );
 
-                return $formated;
+                return $tidy;
               }
         }
     );
@@ -74,7 +75,7 @@ sub stop : Local {
             return $dump;
         });
     $tt->process( $self->template || \$template, { requests => $requests, responses => $responses, app => ref $c }, \$test )
-      or die $!;
+      or die $@;
     $c->res->body($test);
 
 }
